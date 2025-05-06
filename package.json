@@ -1,0 +1,15 @@
+{
+  "name": "minha-api-wkt",
+  "version": "1.0.0",
+  "description": "API para converter WKT para latitude/longitude",
+  "main": "index.js",
+  "engines": {
+    "node": ">=14.x"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["api", "wkt", "geolocation"],
+  "author": "",
+  "license": "ISC"
+} 
