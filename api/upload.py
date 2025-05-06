@@ -11,7 +11,11 @@ class PointOut(BaseModel):
     latitude: float
     longitude: float
 
-@app.post("/", response_model=List[PointOut])
+@app.get("/")
+async def root():
+    return {"message": "API de Conversão WKT para Lat/Long. Use /api/upload para enviar arquivos Excel."}
+
+@app.post("/api/upload", response_model=List[PointOut])
 async def upload_planilha(file: UploadFile = File(...)):
     # valida extensão
     if not file.filename.lower().endswith((".xls", ".xlsx")):
