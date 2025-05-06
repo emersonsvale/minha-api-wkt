@@ -8,6 +8,15 @@
   ],
   "routes": [
     {
+      "src": "/",
+      "dest": "index.py"
+    },
+    {
+      "src": "/api/upload",
+      "methods": ["POST"],
+      "dest": "index.py"
+    },
+    {
       "src": "/(.*)",
       "dest": "index.py"
     }
