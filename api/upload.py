@@ -1,39 +1,64 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
-from pydantic import BaseModel
-from typing import List
+from fastapi import FastAPI, File, UploadFile, Request
+from fastapi.responses import JSONResponse
 import pandas as pd
 from shapely import wkt
+import io
 
-app = FastAPI(title="API de Conversão WKT → Lat/Lon")
+app = FastAPI()
 
-class PointOut(BaseModel):
-    number: int
-    latitude: float
-    longitude: float
+@app.post("/api/upload")
+async def process_upload(request: Request, file: UploadFile = File(...)):
+    try:
+        # Ler conteúdo do arquivo
+        contents = await file.read()
+        
+        # Verificar extensão
+        if not file.filename.lower().endswith((".xls", ".xlsx")):
+            return JSONResponse(
+                status_code=400,
+                content={"error": "O arquivo deve ser .xls ou .xlsx"}
+            )
+        
+        # Processar o Excel
+        df = pd.read_excel(io.BytesIO(contents))
+        
+        # Verificar colunas
+        if "number" not in df.columns or "location" not in df.columns:
+            return JSONResponse(
+                status_code=400, 
+                content={"error": "As colunas 'number' e 'location' são obrigatórias"}
+            )
+        
+        # Processar linhas
+        results = []
+        for _, row in df.iterrows():
+            try:
+                if pd.isna(row["location"]) or pd.isna(row["number"]):
+                    continue
+                
+                geom = wkt.loads(str(row["location"]))
+                results.append({
+                    "number": int(row["number"]),
+                    "latitude": geom.y,
+                    "longitude": geom.x
+                })
+            except Exception:
+                # Ignorar linhas com erro
+                continue
+        
+        # Verificar se temos resultados
+        if not results:
+            return JSONResponse(
+                status_code=422,
+                content={"error": "Nenhum ponto WKT válido encontrado no arquivo"}
+            )
+        
+        return results
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Erro ao processar arquivo: {str(e)}"}
+        )
 
-@app.get("/")
-async def root():
-    return {"message": "API de Conversão WKT para Lat/Long. Use /api/upload para enviar arquivos Excel."}
-
-@app.post("/api/upload", response_model=List[PointOut])
-async def upload_planilha(file: UploadFile = File(...)):
-    # valida extensão
-    if not file.filename.lower().endswith((".xls", ".xlsx")):
-        raise HTTPException(400, "Envie um arquivo .xls ou .xlsx")
-    # lê planilha Excel
-    df = pd.read_excel(file.file)
-    if "number" not in df.columns or "location" not in df.columns:
-        raise HTTPException(400, "Cols 'number' e 'location' obrigatórias")
-
-    resultado = []
-    for idx, row in df.iterrows():
-        try:
-            geom = wkt.loads(row["location"])
-            resultado.append(PointOut(
-                number=int(row["number"]),
-                latitude=geom.y,
-                longitude=geom.x
-            ))
-        except Exception as e:
-            raise HTTPException(422, f"Erro ao parsear WKT na linha {idx+2}: {e}")
-    return resultado 
+# Para o ambiente serverless da Vercel
+handler = app 
