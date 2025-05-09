@@ -2,4 +2,5 @@ fastapi
 uvicorn
 pandas
 openpyxl
-shapely 
+shapely
+requests==2.31.0 
