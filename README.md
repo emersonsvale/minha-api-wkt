@@ -27,4 +27,4 @@ python test_api.py --file ./dados/coordenadas.xlsx --url https://minha-api-perso
 
 ## Formato do Arquivo
 
-O arquivo Excel deve conter as coordenadas WKT no formato esperado pela API. 
+O arquivo Excel deve conter as coordenadas WKT no formato esperado pela API.
