@@ -29,8 +29,14 @@ async def upload_file(file: UploadFile = File(...)):
         for _, row in df.iterrows():
             try:
                 point = wkt.loads(row['location'])
+                # Tenta converter para int, se não conseguir usa o valor original
+                try:
+                    number = int(row['number'])
+                except (ValueError, TypeError):
+                    number = str(row['number'])
+                
                 result.append({
-                    "number": int(row['number']),
+                    "number": number,
                     "latitude": point.y,
                     "longitude": point.x
                 })
