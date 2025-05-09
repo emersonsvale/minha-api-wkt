@@ -1,37 +1,30 @@
-# API de Conversão WKT para Lat/Long
+# API de Localização - Teste
 
-API simples para converter coordenadas no formato WKT (Well-Known Text) para latitude e longitude.
+Script para testar uma API que converte coordenadas WKT para Latitude/Longitude.
 
-## Endpoints
+## Requisitos
 
-- `GET /api` - Documentação da API
-- `POST /api/upload` - Envio de arquivo Excel para conversão
-
-## Uso
-
-Faça um POST para `/api/upload` com um arquivo Excel contendo:
-- Coluna `number` com o identificador do ponto
-- Coluna `location` com o ponto no formato WKT, exemplo: `POINT Z (28.26384809883179 45.40868410295115 0)`
-
-### Exemplo de resposta:
-
-```json
-[
-  {
-    "number": 1,
-    "latitude": 45.40868410295115,
-    "longitude": 28.26384809883179
-  },
-  {
-    "number": 2,
-    "latitude": 45.41390142171629,
-    "longitude": 28.25258833227215
-  }
-]
+```
+pip install requests
 ```
 
-## Testando localmente
+## Como usar
 
-```bash
-python -m uvicorn index:app --reload
-``` 
+Execute o script informando o caminho do arquivo Excel:
+
+```
+python test_api.py --file caminho/para/seu/arquivo.xlsx
+```
+
+Parâmetros opcionais:
+- `--file`: Caminho para o arquivo Excel (padrão: ./sample.xlsx)
+- `--url`: URL da API (padrão: https://minha-api-wkt.vercel.app/api/upload)
+
+Exemplo:
+```
+python test_api.py --file ./dados/coordenadas.xlsx --url https://minha-api-personalizada.com/api/upload
+```
+
+## Formato do Arquivo
+
+O arquivo Excel deve conter as coordenadas WKT no formato esperado pela API. 
